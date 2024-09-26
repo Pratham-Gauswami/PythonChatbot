@@ -9,9 +9,9 @@ from langchain_openai import OpenAI
 from langchain_cohere import ChatCohere
 
 # # Set OpenAI API key
-# os.environ['OPENAI_API_KEY'] = "sk-proj-sdWtibOmo0eSvaDroqqET3BlbkFJmsqtJuVbpU3T0SeRGXnj"
+# os.environ['OPENAI_API_KEY'] = ""
 # Set up Cohere API key
-os.environ['COHERE_API_KEY'] = "w9BCnpVENCLMBfaUkuSH1hEGrWNKexfD4N9aq3X3"
+os.environ['COHERE_API_KEY'] = ""
 
 connection_string = "mssql+pyodbc://sa:Pratham72@localhost/Trial1?driver=ODBC+Driver+17+for+SQL+Server"
 
