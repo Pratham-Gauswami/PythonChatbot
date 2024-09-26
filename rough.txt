@@ -1,0 +1,93 @@
+class Chatbot:
+    def __init__(self, vectorstore: Vectorstore):
+        self.vectorstore = vectorstore
+        self.conversation_id = str(uuid.uuid4())
+
+    def run(self):
+        while True:
+            message = input("User: ")
+
+            if message.lower() == "quit":
+                print("Ending chat.")
+                break
+            else:
+                print(f"User: {message}")
+
+            # For testing, use a predefined query instead of user input
+            query = "SELECT TOP (1000) [user_id], [username], [email], [password] FROM [Trial1].[dbo].[Users]"
+
+            # Query database based on user message
+            try:
+                db_results = self.vectorstore.retrieve_from_database(query)
+            except Exception as e:
+                print(f"Error retrieving from database: {e}")
+                continue
+
+            # Prepare database results for chatbot response
+            documents = []
+            for result in db_results:
+                documents.append({
+                    "user_id": result["user_id"],  # Adjust as per your database schema
+                    "username": result["username"],  # Adjust as per your database schema
+                    "email": result["email"],  # Adjust as per your database schema
+                    "password": result["password"],  # Adjust as per your database schema
+                    # Add other fields as necessary
+                })
+
+            try:
+                # Use Cohere to process user message and retrieve relevant documents
+                response = co.chat_stream(
+                    message=message,
+                    model="command-r",
+                    documents=documents,
+                    conversation_id=self.conversation_id,
+                )
+            except Exception as e:
+                print(f"Error during Cohere chat_stream: {e}")
+                continue
+
+            # Print chatbot response
+            print("\nChatbot:")
+            citations = []
+            cited_documents = []
+
+            for event in response:
+                if event.event_type == "text-generation":
+                    print(event.text, end="")
+                elif event.event_type == "citation-generation":
+                    citations.extend(event.citations)
+                elif event.event_type == "search-results":
+                    cited_documents = event.documents
+
+            if citations:
+                print("\n\nCITATIONS:")
+                for citation in citations:
+                    print(citation)
+
+                print("\nDOCUMENTS:")
+                for document in cited_documents:
+                    print(document)
+
+            print(f"\n{'-'*100}\n")
+
+if __name__ == "__main__":
+    # Replace these with your MSSQL server details
+    server = 'localhost'
+    database = 'Trial1'
+    username = 'sa'
+    password = 'Pratham72'
+
+    # Create an instance of DatabaseQuery
+    database_query = DatabaseQuery(server, database, username, password)
+
+    # Create an instance of Vectorstore
+    vectorstore = Vectorstore(database_query)
+
+    # Create an instance of Chatbot
+    chatbot = Chatbot(vectorstore)
+
+    # Run the chatbot
+    chatbot.run()
+
+    # Close database connection
+    database_query.connection.close()
