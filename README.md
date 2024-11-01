@@ -1,7 +1,3 @@
-Here's a `README.md` for your repository:
-
----
-
 # Chatbot Development Repository
 
 This repository contains various Python scripts, Jupyter notebooks, and text files related to the development of a chatbot and associated embedding and clustering functionalities. Each file serves a distinct purpose within the project, such as training, embedding, and testing the chatbot, as well as utilizing external libraries and databases.
